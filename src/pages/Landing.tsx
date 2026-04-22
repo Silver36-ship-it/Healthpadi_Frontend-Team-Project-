@@ -14,12 +14,12 @@ const stats = [
 ];
 
 const features = [
-  { icon: Search, title: "Price Pulse Search", desc: "Compare prices for X-Ray, MRI, lab tests and more across thousands of verified facilities in real time.", color: "text-primary", bg: "bg-accent" },
+  { icon: Search, title: "Compare Prices", desc: "Compare prices for X-Ray, MRI, lab tests and more across thousands of verified facilities in real time.", color: "text-primary", bg: "bg-accent" },
   { icon: ShieldCheck, title: "Provider Verified", desc: "Trust the green badge — prices come straight from facilities or are confirmed by the community.", color: "text-success", bg: "bg-success-soft" },
   { icon: TrendingUp, title: "Transparency Reports", desc: "Spotted overcharging? File a report in 30 seconds and help fellow Nigerians avoid surprise bills.", color: "text-warning", bg: "bg-warning-soft" },
 ];
 
-const popularSearches = ["Chest X-Ray", "MRI Scan", "Malaria Test", "Antenatal", "CT Scan", "FBC"];
+const popularSearches = ["Chest X-Ray", "MRI", "Malaria Test", "Antenatal", "CT Scan", "Blood"];
 
 export default function Landing() {
   const [q, setQ] = useState("");

@@ -6,22 +6,43 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 type Role = "consumer" | "provider";
 
 export default function Register() {
   const navigate = useNavigate();
+  const { register, isAuthenticated } = useAuth();
   const [role, setRole] = useState<Role>("consumer");
   const [loading, setLoading] = useState(false);
+  const [username, setUsername] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const submit = (e: React.FormEvent) => {
+  // If already logged in, redirect
+  if (isAuthenticated) {
+    navigate("/dashboard", { replace: true });
+  }
+
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await register({
+        username,
+        email,
+        password,
+        phone,
+        role: role === "consumer" ? "user" : "provider",
+      });
       toast.success("Account created! Welcome to HealthPadi.");
       navigate("/dashboard");
-    }, 800);
+    } catch (err: any) {
+      toast.error(err.message || "Registration failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -64,27 +85,48 @@ export default function Register() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label htmlFor="username">Username</Label>
-                <Input id="username" required className="h-11" />
+                <Input
+                  id="username"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="h-11"
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone</Label>
-                <Input id="phone" type="tel" placeholder="+234" required className="h-11" />
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="+234"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="h-11"
+                />
               </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" required className="h-11" />
+              <Input
+                id="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="h-11"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" required className="h-11" />
+              <Input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="h-11"
+              />
             </div>
-            {role === "provider" && (
-              <div className="space-y-2">
-                <Label htmlFor="facility">Facility name</Label>
-                <Input id="facility" required className="h-11" />
-              </div>
-            )}
             <Button type="submit" className="w-full h-11 shadow-soft" disabled={loading}>
               {loading ? "Creating..." : "Create account"}
             </Button>

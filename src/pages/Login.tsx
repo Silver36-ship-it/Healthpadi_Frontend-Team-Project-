@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Activity, ArrowRight, Mail, Lock } from "lucide-react";
@@ -6,20 +6,35 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login, isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const submit = (e: React.FormEvent) => {
+  // If already logged in, redirect
+  if (isAuthenticated) {
+    const from = (location.state as any)?.from || "/dashboard";
+    navigate(from, { replace: true });
+  }
+
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Placeholder JWT flow — POST /api/users/login/
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await login(email, password);
       toast.success("Welcome back!");
-      navigate("/dashboard");
-    }, 800);
+      const from = (location.state as any)?.from || "/dashboard";
+      navigate(from, { replace: true });
+    } catch (err: any) {
+      toast.error(err.message || "Login failed. Please check your credentials.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -35,15 +50,15 @@ export default function Login() {
             <span className="font-display text-lg font-bold">HealthPadi</span>
           </Link>
           <div>
-            <h2 className="font-display text-4xl font-bold leading-tight max-w-md">"I saved ₦14,000 on a CT scan in 3 minutes."</h2>
-            <p className="mt-4 opacity-90 max-w-md">Real Nigerians making informed healthcare decisions every day.</p>
+            <h2 className="font-display text-4xl font-bold leading-tight max-w-md">Know the cost before you go.</h2>
+            <p className="mt-4 opacity-90 max-w-md">No more hospital bill surprises. Compare procedure prices across Lagos facilities and walk in prepared.</p>
             <div className="mt-6 flex items-center gap-3">
               <div className="flex -space-x-2">
                 {[1,2,3,4].map((i) => (
                   <div key={i} className="h-8 w-8 rounded-full border-2 border-primary-foreground bg-primary-foreground/20" />
                 ))}
               </div>
-              <span className="text-sm opacity-90">Joined by 25,000+ users</span>
+              <span className="text-sm opacity-90">Trusted by thousands of Nigerians</span>
             </div>
           </div>
           <div className="text-xs opacity-60">© {new Date().getFullYear()} HealthPadi</div>
@@ -63,10 +78,18 @@ export default function Login() {
 
           <form onSubmit={submit} className="mt-8 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Username or email</Label>
+              <Label htmlFor="email">Email</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input id="email" required defaultValue="ada.lagos" className="pl-9 h-11" />
+                <Input
+                  id="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="pl-9 h-11"
+                />
               </div>
             </div>
             <div className="space-y-2">
@@ -76,7 +99,15 @@ export default function Login() {
               </div>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input id="password" type="password" required defaultValue="password" className="pl-9 h-11" />
+                <Input
+                  id="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  className="pl-9 h-11"
+                />
               </div>
             </div>
             <Button type="submit" className="w-full h-11 shadow-soft" disabled={loading}>

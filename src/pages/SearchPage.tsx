@@ -7,7 +7,8 @@ import { ResultsSkeleton } from "@/components/ResultsSkeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { ProcedureRow } from "@/components/ProcedureRow";
 import { Button } from "@/components/ui/button";
-import { NIGERIAN_STATES, PROCEDURE_CATEGORIES, searchProcedures, formatNGN } from "@/lib/mockData";
+import { NIGERIAN_STATES, PROCEDURE_CATEGORIES, formatNGN } from "@/lib/mockData";
+import { api, SearchResult } from "@/lib/api";
 
 export default function SearchPage() {
   const [params, setParams] = useSearchParams();
@@ -16,23 +17,75 @@ export default function SearchPage() {
   const [category, setCategory] = useState(params.get("category") || "All");
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
+  const [results, setResults] = useState<SearchResult[]>([]);
 
   useEffect(() => {
-    setLoading(true);
-    const t = setTimeout(() => setLoading(false), 600);
-    return () => clearTimeout(t);
-  }, [q, state, category]);
+    const fetchResults = async () => {
+      setLoading(true);
+      try {
+        const query = params.get("q") || "";
+        const stateParam = params.get("state");
+        const categoryParam = params.get("category") || "All";
+        
+        const res = await api.search(
+          query, 
+          undefined,
+          stateParam !== "All States" ? stateParam || undefined : undefined
+        );
+        
+        // Map backend flat results to the nested structure Expected by ProcedureRow
+        let mappedResults = res.results.map((r, i) => ({
+          id: `${r.facility_id}-${r.procedure_name}-${i}`, // Unique ID for keying
+          facility: {
+            id: r.facility_id,
+            name: r.facility_name,
+            city: r.facility_city,
+            state: r.facility_state,
+            address: r.facility_address,
+            rating: parseFloat(r.rating) || 4.5,
+            is_verified: true,
+            is_claimed: true,
+          },
+          procedure_name: r.procedure_name,
+          price_ngn: parseFloat(r.price),
+          price_source: r.price_source as any,
+          community_count: r.community_submission_count,
+          is_stale: r.is_price_stale
+        }));
 
-  const results = useMemo(() => searchProcedures(q, state, category), [q, state, category]);
+        if (categoryParam !== "All") {
+          mappedResults = mappedResults.filter(r => {
+             const proc = r.procedure_name.toLowerCase();
+             if (categoryParam === "Imaging") return proc.includes('x-ray') || proc.includes('mri') || proc.includes('scan') || proc.includes('ultrasound');
+             if (categoryParam === "Laboratory") return proc.includes('blood') || proc.includes('test') || proc.includes('culture') || proc.includes('fbc') || proc.includes('rdt');
+             if (categoryParam === "Maternal") return proc.includes('antenatal') || proc.includes('delivery') || proc.includes('cs:');
+             if (categoryParam === "Fertility") return proc.includes('ivf');
+             if (categoryParam === "Surgery") return proc.includes('surgery') || proc.includes('appendectomy');
+             if (categoryParam === "Dental") return proc.includes('dental') || proc.includes('teeth');
+             return true;
+          });
+        }
+
+        setResults(mappedResults as any);
+      } catch (error) {
+        console.error("Search failed:", error);
+        setResults([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResults();
+  }, [params]);
 
   const stats = useMemo(() => {
     if (!results.length) return null;
-    const prices = results.map((r) => r.price_ngn);
+    const prices = results.map((r: any) => r.price_ngn || parseFloat(r.price) || 0);
     return {
       count: results.length,
       min: Math.min(...prices),
       max: Math.max(...prices),
-      avg: Math.round(prices.reduce((a, b) => a + b, 0) / prices.length),
+      avg: Math.round(prices.reduce((a: number, b: number) => a + b, 0) / prices.length),
     };
   }, [results]);
 
@@ -49,7 +102,7 @@ export default function SearchPage() {
     <PageShell withMesh>
       <div className="container pt-10 pb-16">
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-          <h1 className="font-display text-3xl md:text-5xl font-bold tracking-tight">Price Pulse</h1>
+          <h1 className="font-display text-3xl md:text-5xl font-bold tracking-tight">Compare Prices</h1>
           <p className="mt-2 text-muted-foreground">Live procedure prices from across Nigeria.</p>
         </motion.div>
 

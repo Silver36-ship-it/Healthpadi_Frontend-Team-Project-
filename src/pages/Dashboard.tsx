@@ -3,8 +3,8 @@ import { motion } from "framer-motion";
 import { Activity, Bell, FileText, ShieldCheck, TrendingUp, Plus, Building2 } from "lucide-react";
 import { PageShell } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
-import { mockReports, mockNotifications, formatNGN, allFacilities } from "@/lib/mockData";
-import { useState } from "react";
+import { mockReports, mockNotifications, providerMockNotifications, formatNGN, allFacilities } from "@/lib/mockData";
+import { useAuth } from "@/contexts/AuthContext";
 
 const statusColor: Record<string, string> = {
   pending: "bg-secondary text-secondary-foreground",
@@ -13,10 +13,13 @@ const statusColor: Record<string, string> = {
 };
 
 export default function Dashboard() {
-  const [role, setRole] = useState<"consumer" | "provider">("consumer");
+  const { user } = useAuth();
+  const isProvider = user?.role === "provider";
   const myFacility = allFacilities[0];
 
-  const stats = role === "consumer"
+  const displayName = user?.first_name || user?.username || "User";
+
+  const stats = !isProvider
     ? [
         { label: "Reports filed", value: "2", icon: FileText, color: "text-primary", bg: "bg-accent" },
         { label: "Resolved", value: "1", icon: ShieldCheck, color: "text-success", bg: "bg-success-soft" },
@@ -35,20 +38,14 @@ export default function Dashboard() {
       <div className="container pt-10 pb-16">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-sm text-muted-foreground">Welcome back, Ada</p>
+            <p className="text-sm text-muted-foreground">Welcome back, {displayName}</p>
             <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight mt-1">Your dashboard</h1>
           </div>
           <div className="flex items-center gap-3">
             <div className="inline-flex bg-secondary p-1 rounded-full">
-              {(["consumer", "provider"] as const).map((r) => (
-                <button
-                  key={r}
-                  onClick={() => setRole(r)}
-                  className={`text-xs font-medium px-4 py-1.5 rounded-full transition-smooth ${role === r ? "bg-card shadow-soft text-foreground" : "text-muted-foreground"}`}
-                >
-                  {r === "consumer" ? "Consumer" : "Provider"} view
-                </button>
-              ))}
+              <span className={`text-xs font-medium px-4 py-1.5 rounded-full bg-card shadow-soft text-foreground`}>
+                {isProvider ? "Provider" : "Consumer"} view
+              </span>
             </div>
             <Button asChild size="sm" className="shadow-soft">
               <Link to="/report"><Plus className="h-4 w-4 mr-1" />New report</Link>
@@ -78,7 +75,7 @@ export default function Dashboard() {
         <div className="mt-8 grid lg:grid-cols-3 gap-6">
           {/* Reports / Provider panel */}
           <div className="lg:col-span-2">
-            {role === "consumer" ? (
+            {!isProvider ? (
               <div className="bg-card border border-border rounded-2xl shadow-soft overflow-hidden">
                 <div className="p-5 border-b border-border flex items-center justify-between">
                   <h2 className="font-display font-semibold">Recent reports</h2>
@@ -148,9 +145,9 @@ export default function Dashboard() {
           <aside className="bg-card border border-border rounded-2xl shadow-soft overflow-hidden h-fit">
             <div className="p-5 border-b border-border flex items-center justify-between">
               <h2 className="font-display font-semibold">Notifications</h2>
-              <span className="text-xs text-muted-foreground">{mockNotifications.filter((n) => !n.read).length} new</span>
+              <span className="text-xs text-muted-foreground">{(isProvider ? providerMockNotifications : mockNotifications).filter((n) => !n.read).length} new</span>
             </div>
-            {mockNotifications.map((n) => (
+            {(isProvider ? providerMockNotifications : mockNotifications).map((n) => (
               <div key={n.id} className="p-4 border-b border-border last:border-0 flex gap-3">
                 <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 ${
                   n.type === "success" ? "bg-success-soft text-success" :

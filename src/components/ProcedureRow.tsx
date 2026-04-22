@@ -14,7 +14,7 @@ export function ProcedureRow({ p, index }: { p: FacilityProcedure; index: number
       transition={{ duration: 0.3, delay: index * 0.04 }}
       className="group grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 p-4 md:p-5 border-b border-border last:border-0 hover:bg-accent/40 transition-smooth"
     >
-      <div className="md:col-span-5 min-w-0">
+      <div className="md:col-span-4 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <Link to={`/facility/${p.facility.id}`} className="font-display font-semibold text-base hover:text-primary transition-smooth truncate">
             {p.facility.name}
@@ -22,7 +22,7 @@ export function ProcedureRow({ p, index }: { p: FacilityProcedure; index: number
           {p.facility.is_verified && p.facility.is_claimed && <VerifiedBadge withLabel={false} />}
         </div>
         <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
-          <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{p.facility.city}, {p.facility.state}</span>
+          <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{p.facility.address ? `${p.facility.address}, ${p.facility.state}` : `${p.facility.city}, ${p.facility.state}`}</span>
           <span className="flex items-center gap-1"><Star className="h-3 w-3 fill-warning text-warning" />{p.facility.rating}</span>
         </div>
       </div>
@@ -34,8 +34,8 @@ export function ProcedureRow({ p, index }: { p: FacilityProcedure; index: number
         </div>
       </div>
 
-      <div className="md:col-span-2 flex items-center">
-        <PriceBadge source={p.price_source} isStale={p.is_stale} />
+      <div className="md:col-span-3 flex items-center">
+        <PriceBadge source={p.price_source} communityCount={p.community_count} isStale={p.is_stale} />
       </div>
 
       <div className="md:col-span-1 flex items-center md:justify-end">

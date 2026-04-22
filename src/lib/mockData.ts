@@ -25,7 +25,8 @@ export interface FacilityProcedure {
   procedure_name: string;
   category: string;
   price_ngn: number;
-  price_source: PriceSource;
+  price_source: PriceSource | string;
+  community_count: number;
   is_stale: boolean;
   updated_at: string; // ISO
 }
@@ -116,4 +117,10 @@ export const mockNotifications: NotificationItem[] = [
   { id: "n1", title: "Report under review", message: "Your report on Reddington Hospital is being reviewed.", type: "info", created_at: "2025-04-18T08:00:00Z", read: false },
   { id: "n2", title: "Price updated", message: "Lagoon Hospitals updated their X-Ray price.", type: "success", created_at: "2025-04-16T14:00:00Z", read: false },
   { id: "n3", title: "Stale data alert", message: "3 procedures in your saved list are outdated.", type: "warning", created_at: "2025-04-12T10:00:00Z", read: true },
+];
+
+export const providerMockNotifications: NotificationItem[] = [
+  { id: "pn1", title: "New Community Report", message: "A user reported a price discrepancy for 'Chest X-Ray'. Please review.", type: "warning", created_at: "2025-04-18T09:15:00Z", read: false },
+  { id: "pn2", title: "Price Verified", message: "Your updated price for 'Malaria Test (RDT)' was verified.", type: "success", created_at: "2025-04-17T11:00:00Z", read: false },
+  { id: "pn3", title: "Update Prices Reminder", message: "It's been 30 days since you last updated your imaging prices.", type: "info", created_at: "2025-04-15T10:00:00Z", read: true },
 ];
