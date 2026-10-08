@@ -10,13 +10,19 @@ export default function FacilitiesPage() {
   const [filter, setFilter] = useState<"all" | "verified">("all");
   const [allFacilities, setAllFacilities] = useState<Facility[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
+    setLoading(true);
+    setError(false);
     api.getFacilities().then(data => {
       setAllFacilities(data);
-      setLoading(false);
-    }).catch(() => setLoading(false));
-  }, []);
+    }).catch((error) => {
+      console.error("Failed to load facilities:", error);
+      setError(true);
+    }).finally(() => setLoading(false));
+  }, [reloadKey]);
 
   const facilities = allFacilities.filter((f) => filter === "all" || f.is_verified);
 
@@ -26,7 +32,9 @@ export default function FacilitiesPage() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="font-display text-3xl md:text-5xl font-bold tracking-tight">Facilities</h1>
-            <p className="mt-2 text-muted-foreground">{allFacilities.length} healthcare facilities tracked across Nigeria.</p>
+            <p className="mt-2 text-muted-foreground">
+              {error ? "Facilities are temporarily unavailable." : `${allFacilities.length} healthcare facilities tracked across Nigeria.`}
+            </p>
           </div>
           <div className="flex gap-2">
             {[
@@ -47,6 +55,17 @@ export default function FacilitiesPage() {
         {loading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          </div>
+        ) : error ? (
+          <div className="mt-8 rounded-2xl border border-border bg-card p-8 text-center">
+            <p className="text-muted-foreground">We couldn’t load facilities. Please try again shortly.</p>
+            <button
+              type="button"
+              onClick={() => setReloadKey(key => key + 1)}
+              className="mt-4 rounded-full border border-border px-4 py-2 text-sm hover:border-primary/50"
+            >
+              Try again
+            </button>
           </div>
         ) : (
           <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
