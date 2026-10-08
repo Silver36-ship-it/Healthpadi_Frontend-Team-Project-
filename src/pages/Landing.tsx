@@ -61,17 +61,17 @@ export default function Landing() {
             transition={{ duration: 0.6, delay: 0.15 }}
             className="mt-10 max-w-2xl"
           >
-            <div className="glass rounded-2xl p-2 flex items-center gap-2 shadow-elevated">
-              <div className="flex items-center pl-4 text-muted-foreground">
+            <div className="glass rounded-2xl p-2 flex flex-col sm:flex-row sm:items-center gap-2 shadow-elevated">
+              <div className="flex min-w-0 items-center gap-2">
                 <Search className="h-5 w-5" />
+                <input
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  placeholder="Try “MRI Scan in Lagos”..."
+                  className="min-w-0 flex-1 bg-transparent border-0 outline-none py-3 px-2 text-base placeholder:text-muted-foreground"
+                />
               </div>
-              <input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Try “MRI Scan in Lagos”..."
-                className="flex-1 bg-transparent border-0 outline-none py-3 px-2 text-base placeholder:text-muted-foreground"
-              />
-              <Button type="submit" size="lg" className="rounded-xl shadow-soft">
+              <Button type="submit" size="lg" className="w-full shrink-0 rounded-xl shadow-soft sm:w-auto">
                 Search
                 <ArrowRight className="ml-1 h-4 w-4" />
               </Button>

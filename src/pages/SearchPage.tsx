@@ -108,24 +108,28 @@ export default function SearchPage() {
 
         {/* Search bar */}
         <form onSubmit={submit} className="mt-8">
-          <div className="glass rounded-2xl p-2 flex items-center gap-2 shadow-soft-lg">
-            <Search className="h-5 w-5 text-muted-foreground ml-3" />
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search procedure or facility (e.g., MRI, Reddington)..."
-              className="flex-1 bg-transparent outline-none py-3 px-1 text-base placeholder:text-muted-foreground"
-            />
-            {q && (
-              <button type="button" onClick={() => setQ("")} className="text-muted-foreground hover:text-foreground p-1">
-                <X className="h-4 w-4" />
-              </button>
-            )}
-            <Button type="button" variant="ghost" onClick={() => setShowFilters((v) => !v)} className="rounded-xl">
-              <SlidersHorizontal className="h-4 w-4 mr-1" />
-              Filters
-            </Button>
-            <Button type="submit" className="rounded-xl">Search</Button>
+          <div className="glass rounded-2xl p-2 flex flex-col gap-2 shadow-soft-lg sm:flex-row sm:items-center">
+            <div className="flex min-w-0 items-center gap-2">
+              <Search className="ml-3 h-5 w-5 shrink-0 text-muted-foreground" />
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search procedure or facility (e.g., MRI, Reddington)..."
+                className="min-w-0 flex-1 bg-transparent outline-none py-3 px-1 text-base placeholder:text-muted-foreground"
+              />
+              {q && (
+                <button type="button" onClick={() => setQ("")} className="shrink-0 text-muted-foreground hover:text-foreground p-1">
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-2 sm:flex sm:shrink-0">
+              <Button type="button" variant="ghost" onClick={() => setShowFilters((v) => !v)} className="rounded-xl">
+                <SlidersHorizontal className="h-4 w-4 mr-1" />
+                Filters
+              </Button>
+              <Button type="submit" className="rounded-xl">Search</Button>
+            </div>
           </div>
 
           {showFilters && (
