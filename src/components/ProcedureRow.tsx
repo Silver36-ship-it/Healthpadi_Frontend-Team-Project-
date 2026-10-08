@@ -1,17 +1,13 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { MapPin, Star, ChevronRight } from "lucide-react";
 import type { FacilityProcedure } from "@/lib/mockData";
 import { formatNGN } from "@/lib/mockData";
 import { PriceBadge } from "./PriceBadge";
 import { VerifiedBadge } from "./VerifiedBadge";
 
-export function ProcedureRow({ p, index }: { p: FacilityProcedure; index: number }) {
+export function ProcedureRow({ p }: { p: FacilityProcedure }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.04 }}
+    <div
       className="group grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 p-4 md:p-5 border-b border-border last:border-0 hover:bg-accent/40 transition-smooth"
     >
       <div className="md:col-span-4 min-w-0">
@@ -43,6 +39,6 @@ export function ProcedureRow({ p, index }: { p: FacilityProcedure; index: number
           View <ChevronRight className="h-4 w-4" />
         </Link>
       </div>
-    </motion.div>
+    </div>
   );
 }

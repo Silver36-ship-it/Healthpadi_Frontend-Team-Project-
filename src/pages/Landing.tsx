@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { ArrowRight, Search, ShieldCheck, TrendingUp, Sparkles, Activity, MapPin, Heart } from "lucide-react";
 import { PageShell } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
@@ -35,12 +34,7 @@ export default function Landing() {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="container pt-16 pb-20 md:pt-24 md:pb-32 relative">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-3xl"
-          >
+          <div className="max-w-3xl">
             <span className="inline-flex items-center gap-2 rounded-full glass px-3 py-1.5 text-xs font-medium text-primary mb-6">
               <Sparkles className="h-3.5 w-3.5" />
               Now tracking 2,400+ facilities across Nigeria
@@ -52,13 +46,10 @@ export default function Landing() {
             <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
               Find, compare and verify the real cost of medical procedures at hospitals, clinics and diagnostic centres across Nigeria — before you walk in.
             </p>
-          </motion.div>
+          </div>
 
-          <motion.form
+          <form
             onSubmit={submit}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.15 }}
             className="mt-10 max-w-2xl"
           >
             <div className="glass rounded-2xl p-2 flex flex-col sm:flex-row sm:items-center gap-2 shadow-elevated">
@@ -89,12 +80,9 @@ export default function Landing() {
                 </button>
               ))}
             </div>
-          </motion.form>
+          </form>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
+          <div
             className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"
           >
             {stats.map((s) => (
@@ -103,16 +91,13 @@ export default function Landing() {
                 <div className="text-xs md:text-sm text-muted-foreground mt-1">{s.label}</div>
               </div>
             ))}
-          </motion.div>
+          </div>
         </div>
 
         {/* Floating decorative card */}
-        <motion.div
+        <div
           aria-hidden
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="hidden lg:block absolute right-12 top-32 w-72 animate-float"
+          className="hidden lg:block absolute right-12 top-32 w-72"
         >
           <div className="glass rounded-2xl p-5 shadow-elevated">
             <div className="flex items-center justify-between">
@@ -125,7 +110,7 @@ export default function Landing() {
                   <div className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" />Lagos</div>
                 </div>
               </div>
-              <Activity className="h-4 w-4 text-success animate-pulse-soft" />
+              <Activity className="h-4 w-4 text-success" />
             </div>
             <div className="mt-4 flex items-end justify-between">
               <div>
@@ -135,7 +120,7 @@ export default function Landing() {
               <span className="text-[10px] font-semibold text-success bg-success-soft px-2 py-1 rounded-full">VERIFIED</span>
             </div>
           </div>
-        </motion.div>
+        </div>
       </section>
 
       {/* Features */}
@@ -145,13 +130,9 @@ export default function Landing() {
           <p className="mt-3 text-muted-foreground">Everything you need to make informed healthcare decisions — without the guesswork.</p>
         </div>
         <div className="grid md:grid-cols-3 gap-5">
-          {features.map((f, i) => (
-            <motion.div
+          {features.map((f) => (
+            <div
               key={f.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
               className="group bg-gradient-card border border-border rounded-2xl p-6 hover:shadow-elevated transition-smooth"
             >
               <div className={`h-12 w-12 rounded-xl ${f.bg} flex items-center justify-center mb-5 group-hover:scale-110 transition-bounce`}>
@@ -159,7 +140,7 @@ export default function Landing() {
               </div>
               <h3 className="font-display font-semibold text-lg mb-2">{f.title}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
-            </motion.div>
+            </div>
           ))}
         </div>
       </section>
@@ -179,8 +160,6 @@ export default function Landing() {
               </Button>
             </div>
           </div>
-          <div className="absolute -right-20 -bottom-20 h-72 w-72 rounded-full bg-primary-foreground/10 blur-3xl" />
-          <div className="absolute -left-10 -top-10 h-48 w-48 rounded-full bg-primary-foreground/10 blur-2xl" />
         </div>
       </section>
     </PageShell>

@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { ArrowLeft, MapPin, Phone, Star, Building2, Flag, Loader2 } from "lucide-react";
 import { PageShell } from "@/components/layout/PageShell";
@@ -11,29 +12,29 @@ import { api, Facility } from "@/lib/api";
 
 export default function FacilityProfile() {
   const { id } = useParams();
-  const [facility, setFacility] = useState<Facility & { rating?: string, data_source?: string } | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const {
+    data: facility,
+    isLoading,
+    error,
+  } = useQuery<Facility & { data_source?: string }, Error>({
+    queryKey: ["facility", id],
+    queryFn: () => api.getFacility(id!),
+    enabled: Boolean(id),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    retry: false,
+    initialData: () => queryClient.getQueryData<Facility[]>(["facilities"])?.find(
+      (item) => item.facility_id === Number(id),
+    ),
+    initialDataUpdatedAt: () => queryClient.getQueryState(["facilities"])?.dataUpdatedAt,
+  });
 
   useEffect(() => {
-    const fetchFacility = async () => {
-      if (!id) return;
-      setLoading(true);
-      try {
-        const data = await api.getFacility(id);
-        setFacility(data);
-        setError(null);
-      } catch (error) {
-        console.error("Failed to fetch facility:", error);
-        setError("Failed to load facility data. Please check your connection or try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchFacility();
-  }, [id]);
+    if (error) console.error("Failed to fetch facility:", error);
+  }, [error]);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <PageShell>
         <div className="container py-20 flex flex-col items-center justify-center text-center">
@@ -44,12 +45,12 @@ export default function FacilityProfile() {
     );
   }
 
-  if (error) {
+  if (error && !facility) {
     return (
       <PageShell>
         <div className="container py-20 text-center">
           <h1 className="font-display text-2xl font-bold text-destructive">Oops, something went wrong</h1>
-          <p className="mt-2 text-muted-foreground">{error}</p>
+          <p className="mt-2 text-muted-foreground">Failed to load facility data. Please check your connection or try again later.</p>
           <Button asChild className="mt-4"><Link to="/facilities">Back to facilities</Link></Button>
         </div>
       </PageShell>
@@ -147,12 +148,9 @@ export default function FacilityProfile() {
               {procedures.length === 0 && (
                 <div className="p-10 text-center text-muted-foreground">No procedures listed yet.</div>
               )}
-              {procedures.map((p, i) => (
-                <motion.div
+              {procedures.map((p) => (
+                <div
                   key={p.id}
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.04 }}
                   className="flex items-center justify-between gap-4 p-5 border-b border-border last:border-0 hover:bg-accent/40 transition-smooth"
                 >
                   <div className="min-w-0">
@@ -163,7 +161,7 @@ export default function FacilityProfile() {
                     <div className="font-display text-lg font-bold tabular-nums">{formatNGN(parseFloat(p.price))}</div>
                     <PriceBadge source={p.price_source as any} isStale={false} className="mt-1" />
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>

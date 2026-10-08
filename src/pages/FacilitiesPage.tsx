@@ -1,30 +1,32 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Building2, MapPin, Star, ChevronRight, Loader2 } from "lucide-react";
 import { PageShell } from "@/components/layout/PageShell";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
-import { api, Facility } from "@/lib/api";
-import { useState, useEffect } from "react";
+import { api } from "@/lib/api";
 
 export default function FacilitiesPage() {
   const [filter, setFilter] = useState<"all" | "verified">("all");
-  const [allFacilities, setAllFacilities] = useState<Facility[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [reloadKey, setReloadKey] = useState(0);
+  const {
+    data: allFacilities = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["facilities"],
+    queryFn: api.getFacilities,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    retry: false,
+  });
 
   useEffect(() => {
-    setLoading(true);
-    setError(false);
-    api.getFacilities().then(data => {
-      setAllFacilities(data);
-    }).catch((error) => {
-      console.error("Failed to load facilities:", error);
-      setError(true);
-    }).finally(() => setLoading(false));
-  }, [reloadKey]);
+    if (error) console.error("Failed to load facilities:", error);
+  }, [error]);
 
   const facilities = allFacilities.filter((f) => filter === "all" || f.is_verified);
+  const showError = Boolean(error) && allFacilities.length === 0;
 
   return (
     <PageShell withMesh>
@@ -33,7 +35,7 @@ export default function FacilitiesPage() {
           <div>
             <h1 className="font-display text-3xl md:text-5xl font-bold tracking-tight">Facilities</h1>
             <p className="mt-2 text-muted-foreground">
-              {error ? "Facilities are temporarily unavailable." : `${allFacilities.length} healthcare facilities tracked across Nigeria.`}
+              {showError ? "Facilities are temporarily unavailable." : `${allFacilities.length} healthcare facilities tracked across Nigeria.`}
             </p>
           </div>
           <div className="flex gap-2">
@@ -52,16 +54,16 @@ export default function FacilitiesPage() {
           </div>
         </div>
 
-        {loading ? (
+        {isLoading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="h-10 w-10 animate-spin text-primary" />
           </div>
-        ) : error ? (
+        ) : showError ? (
           <div className="mt-8 rounded-2xl border border-border bg-card p-8 text-center">
             <p className="text-muted-foreground">We couldn’t load facilities. Please try again shortly.</p>
             <button
               type="button"
-              onClick={() => setReloadKey(key => key + 1)}
+              onClick={() => refetch()}
               className="mt-4 rounded-full border border-border px-4 py-2 text-sm hover:border-primary/50"
             >
               Try again
@@ -69,13 +71,8 @@ export default function FacilitiesPage() {
           </div>
         ) : (
           <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {facilities.map((f, i) => (
-              <motion.div
-                key={f.facility_id}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.04 }}
-              >
+            {facilities.map((f) => (
+              <div key={f.facility_id}>
                 <Link to={`/facility/${f.facility_id}`} className="group block bg-gradient-card border border-border rounded-2xl p-6 hover:shadow-elevated hover:border-primary/30 transition-smooth h-full">
                   <div className="flex items-start justify-between">
                     <div className="h-12 w-12 rounded-xl bg-accent flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-smooth">
@@ -96,7 +93,7 @@ export default function FacilitiesPage() {
                     </span>
                   </div>
                 </Link>
-              </motion.div>
+              </div>
             ))}
           </div>
         )}

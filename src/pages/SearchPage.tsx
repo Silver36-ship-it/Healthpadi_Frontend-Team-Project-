@@ -212,8 +212,8 @@ export default function SearchPage() {
                 <div className="col-span-2">Source</div>
                 <div className="col-span-1 text-right">Action</div>
               </div>
-              {results.map((r, i) => (
-                <ProcedureRow key={r.id} p={r} index={i} />
+              {results.map((r) => (
+                <ProcedureRow key={r.id} p={r} />
               ))}
             </div>
           )}
